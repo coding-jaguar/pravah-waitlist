@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import { Waitlist } from "@/lib/models/Waitlist";
 import { connectDB } from "@/lib/models/mongoose";
 
+function isDuplicateKeyError(err: unknown): err is { code: 11000 } {
+    return (
+        typeof err === "object" &&
+        err !== null &&
+        "code" in err &&
+        (err as { code?: unknown }).code === 11000
+    );
+}
+
 export async function POST(req: Request) {
     try {
         const body = await req.json();
@@ -26,7 +35,7 @@ export async function POST(req: Request) {
     } catch (err: unknown) {
         console.error("Waitlist error:", err);
         // Handle duplicate email nicely
-        if (typeof err === "object" && err && "code" in err && (err as any).code === 11000) {
+        if (isDuplicateKeyError(err)) {
             return NextResponse.json({ error: "This email is already on the waitlist." }, { status: 409 });
         }
 

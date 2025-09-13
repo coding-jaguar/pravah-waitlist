@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  // this makes the app live under /pravah-waitlist
-  basePath: '/pravah-waitlist',
-  // optional but handy if you reference assets manually
-  assetPrefix: '/pravah-waitlist',
+const isProd = process.env.NODE_ENV === "production";
 
+const nextConfig: NextConfig = {
+  basePath: isProd ? "/pravah-waitlist" : undefined,
+  assetPrefix: isProd ? "/pravah-waitlist" : undefined,
 };
 
 export default nextConfig;

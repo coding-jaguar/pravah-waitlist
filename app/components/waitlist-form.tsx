@@ -51,7 +51,12 @@ export function WaitlistForm() {
       return;
     }
 
-    const data = await res.json().catch(() => ({} as any));
+    let data: unknown = null;
+    try {
+      data = await res.json();
+    } catch {
+      // ignore JSON parse errors
+    }
     console.log("data", data);
 
     if (res.ok) {
@@ -62,8 +67,17 @@ export function WaitlistForm() {
       });
     } else {
       setStatus("error");
-      toast.error(data?.error || res.statusText || "Something went wrong.", {
-        description: !data?.error ? "Please try again." : undefined,
+      const maybeError =
+        typeof data === "object" && data !== null && "error" in data
+          ? (data as { error: unknown }).error
+          : undefined;
+      const message =
+        typeof maybeError === "string"
+          ? maybeError
+          : res.statusText || "Something went wrong.";
+      toast.error(message, {
+        description:
+          typeof maybeError === "string" ? undefined : "Please try again.",
       });
     }
   }
